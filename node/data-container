@@ -1,0 +1,5 @@
+IMAGE SOURCE
+base-arch
+
+VOLUME
+Data:/data Local RW
