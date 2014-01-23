@@ -1,4 +1,15 @@
-/project/build
+#build.sh
+#!/bin/bash
+# TODO:
+# Vagrant	- enable alternate distro builds
+# Package	- contain image with meta-data
+# Install	- configure image state
+
+# set $path
+path=/home/user/project/build
+
+# set $OUTPUT
+OUTPUT=$path/image
 
 # create $MENU from scripts in /distro
 BUILD=$(ls -1 $path/distro/ | sed 's/.sh//g')
@@ -19,5 +30,5 @@ done
 sudo $path/distro/$DISTRO.sh base-$DISTRO
 
 # save to /image and clean up
-sudo docker save base-$DISTRO > $path/image/base-$DISTRO.tar
+sudo docker save base-$DISTRO > $OUTPUT/base-$DISTRO.tar
 sudo docker rmi base-$DISTRO

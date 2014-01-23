@@ -4,6 +4,9 @@
 # set $path
 path=/home/user/project/build
 
+# set $OUTPUT
+OUTPUT=$path/node
+
 # create $MENU from archives in /image
 MOUNT=$(ls -1 $path/image | sed 's/.tar//g')
 MENU=($MOUNT quit)
@@ -82,15 +85,15 @@ do
 done
 
 read -p "Enter filename: " FILE
-while [ -f $path/node/$FILE ]
+while [ -f $OUTPUT/$FILE ]
 do
 	read -p "File exists. Enter filename: " FILE
 done
 
-echo "IMAGE SOURCE" > $path/node/$FILE
-echo $IMAGE >> $path/node/$FILE
+echo "IMAGE SOURCE" > $OUTPUT/$FILE
+echo $IMAGE >> $OUTPUT/$FILE
 
 if [[ $CREATE = true ]]; then
-	echo -e "\nVOLUME" >> $path/node/$FILE
-	echo "$(printf '%s\n' "${ARRAY[@]}")" >> $path/node/$FILE
+	echo -e "\nVOLUME" >> $OUTPUT/$FILE
+	echo "$(printf '%s\n' "${ARRAY[@]}")" >> $OUTPUT/$FILE
 fi
