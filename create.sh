@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 # TODO:
 
 # set $path
@@ -9,6 +9,10 @@ INPUT=$path/node
 
 # set $OUTPUT
 OUTPUT=$path/repo
+
+# set $BASE image
+BASE="base-arch true"
+
 
 # create $MENU from entries in $INPUT
 NODE=$(ls -1 $INPUT)
@@ -40,21 +44,40 @@ do
 	fi
 done < $INPUT/$CONFIG
 
-TAG=()
+NODE=()
 DIR=()
 LOCATION=()
-PERMISSION=()
+ACCESS=()
 for (( i=0; i < ${#VOLUME[@]}; i++ ))
 do
-	temp=$(echo ${VOLUME[$i]} | tr ":" " ")
-	TAG=("${TAG[@]}" "${temp[0]}")
-	DIR=("${DIR[@]}" "${temp[1]}")
-	LOCATION=("${LOCATION[@]}" "${temp[2]}")
-	PERMISSION=("${PERMISSION[@]}" "${temp[3]}")	
+	NODE=("${NODE[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / |cut -d " " -f1)")
+	DIR=("${DIR[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / |cut -d " " -f2)")
+	LOCATION=("${LOCATION[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / |cut -d " " -f3)")
+	ACCESS=("${ACCESS[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / |cut -d " " -f4)")	
 done
 
+CONTAINER=()
 for (( i=0; i < ${#VOLUME[@]}; i++ ))
 do
 	echo ${VOLUME[$i]}
-	echo ${TAG[$i]} ${DIR[$i]} ${LOCATION[$i]} ${PERMISSION[$i]}
+
+	CONTAINER=("${CONTAINER[@]}" "-volumes-from ${NODE[$i]}")
+	test=$(sudo docker ps -a | tr -s ' ' | cut -d ' ' -f9 | grep -o ^${NODE[$i]}$)
+		
+	if [[ ${LOCATION[$i]} = Local ]]; then
+		if [[ -z $test ]]; then
+			sudo docker run -v ${DIR[$i]} -name ${NODE[$i]} $BASE
+		fi
+	elif [[ ${LOCATION[$i]} = Host ]]; then
+		if [[ -z $test ]]; then
+			sudo docker run -v ${DIR[$i]}:${DIR[$i]}:${ACCESS[$i]} -name ${NODE[$i]} $BASE
+		fi
+	else
+		if [[ -z $test ]]; then
+			echo "Error: No container by name " ${NODE[$i]}
+			exit
+		fi
+	fi
 done
+
+echo ${CONTAINER[@]}
