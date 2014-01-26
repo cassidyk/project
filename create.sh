@@ -91,7 +91,7 @@ do
 	fi
 done
 MOUNT=$(echo ${CONTAINER[@]})
-echo $MOUNT
-read -p "Image name: " NAME
+
+read -p "Container name: " NAME
 
 sudo docker run $MOUNT -name $NAME $IMAGE /bin/bash
