@@ -5,7 +5,7 @@
 path=/home/user/project/build
 
 # set $OUTPUT
-OUTPUT=$path/node
+OUTPUT=$path/volume
 
 # create $MENU from archives in /image
 MOUNT=$(ls -1 $path/image | sed 's/.tar//g')
@@ -22,7 +22,7 @@ select image in `echo ${MENU[@]}`; do
 	fi
 done
 
-echo "Create volume node?"
+echo "Add a volume"
 select yn in "yes" "no"; do
 	case $yn in
 	yes) CREATE=true

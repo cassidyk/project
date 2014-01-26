@@ -5,7 +5,7 @@
 path=/home/user/project/build
 
 # set $INPUT
-INPUT=$path/node
+INPUT=$path/volume
 
 # set $OUTPUT
 OUTPUT=$path/repo
