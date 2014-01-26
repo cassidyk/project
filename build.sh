@@ -11,6 +11,10 @@ path=/home/user/project/build
 # set $OUTPUT
 OUTPUT=$path/image
 
+if [ ! -d $OUTPUT ]; then
+	mkdir $OUTPUT
+fi
+
 # create $MENU from scripts in /distro
 BUILD=$(ls -1 $path/distro/ | sed 's/.sh//g')
 MENU=($BUILD quit)
