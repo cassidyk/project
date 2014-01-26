@@ -28,7 +28,9 @@ select yn in "yes" "no"; do
 	if [[ $yn = "yes" ]]; then
 		ARG="-t -i -rm"
 	else
+		read -p "Enter name: " NAME
 		ARG="-t -i"
+		IMAGE="-name $NAME $IMAGE"
 	fi
 	break;
 done
