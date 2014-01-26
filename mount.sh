@@ -23,23 +23,23 @@ select image in `echo ${MENU[@]}`; do
 done
 
 echo "Create volume node?"
-select yn in "Yes" "No"; do
+select yn in "yes" "no"; do
 	case $yn in
-	Yes) CREATE=true
+	yes) CREATE=true
 	     ARRAY=()
 	     break;;
-	No)  break;;
+	no)  break;;
 	esac
 done
 
 # create $ARRAY from looped input.
 while [[ $CREATE = true ]]
 do
-	select node in "Add node" "Remove node" "Done"; do
-	       	if [[ $node = "Done" ]]; then
+	select node in "add" "remove" "done"; do
+	       	if [[ $node = "done" ]]; then
 			break 2;
 
-	       	elif [[ $node = "Add node" ]]; then
+	       	elif [[ $node = "add" ]]; then
 			read -p "ID: " ID
 			test=$(sudo docker ps -a | tr -s ' ' | tr -s ' ' | rev | cut -d ' ' -f2 | rev | grep -o ^$ID$)
 			while [[ -n $test ]]
@@ -61,10 +61,19 @@ do
 				else
 					temp3="Container"
 				fi
-				echo -e "Container $ID exists.\nEntry: $ID:$temp1 $temp3$temp4"
-				select opt in "Yes" "No"; do
-					if [[ $opt = "Yes" ]]; then
+				echo -e "Container $ID exists.\nSuggested entry: $ID:$temp1 $temp3$temp4"
+				select opt in "add" "local" "rename"; do
+					if [[ $opt = "add" ]]; then
 						ARRAY=("${ARRAY[@]}" "$ID:$temp1 $temp3$temp4")
+						echo "$(printf '%s\n' "${ARRAY[@]}")"
+
+						unset temp1
+						unset temp2
+						unset temp3
+						unset temp4
+						continue 4
+					elif [[ $opt = "local" ]]; then
+						ARRAY=("${ARRAY[@]}" "$ID:$temp1 Local")
 						echo "$(printf '%s\n' "${ARRAY[@]}")"
 
 						unset temp1
@@ -88,7 +97,17 @@ do
 			echo "Set location of data"
 			while [[ -z $LOCATION ]]
 			do
-				select LOCATION in "Container" "Local" "Host"; do
+				select LOCATION in "container" "local" "host"; do
+					if [[ $LOCATION = "container" ]]; then
+						LOCATION="Container"
+					elif [[ $LOCATION = "local" ]]; then
+						LOCATION="Local"
+					elif [[  $LOCATION = "host" ]]; then
+						LOCATION="Host"
+					else
+						echo "Invalid selection."
+						continue
+					fi
 					break;
 				done
 			done
@@ -112,7 +131,7 @@ do
 
 			ARRAY=("${ARRAY[@]}" "$ID:$DIR $LOCATION$PERMISSION")
 			
-     		elif [[ $node = "Remove node" ]]; then
+     		elif [[ $node = "remove" ]]; then
 			select remove in "${ARRAY[@]}"; do
 				for (( i=0; i < ${#ARRAY[@]}; i++ ))
 				do

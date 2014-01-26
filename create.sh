@@ -63,34 +63,39 @@ done
 CONTAINER=()
 for (( i=0; i < ${#VOLUME[@]}; i++ ))
 do
-	echo ${VOLUME[$i]}
+	test=$(sudo docker ps -a | tr -s ' ' | tr -s ' ' | rev | cut -d ' ' -f2 | rev | grep -o ^${NODE[$i]}$)
 
-	CONTAINER=("${CONTAINER[@]}" "-volumes-from ${NODE[$i]}")
-	test=$(sudo docker ps -a | tr -s ' ' | tr -s ' ' | rev | cut -d ' ' -f2 | rev | grep -o ^$ID$)
-
-	if [[ -n $test ]]; then
-		continue
-	elif [[ ${LOCATION[$i]} = Local ]]; then
-		if [[ -z $test ]]; then
-			sudo docker run -v ${DIR[$i]} -name ${NODE[$i]} $BASE
-		fi
-	elif [[ ${LOCATION[$i]} = Host ]]; then
-		if [[ -z $test ]]; then
-			sudo docker run -v ${DIR[$i]}:${DIR[$i]}:${ACCESS[$i]} -name ${NODE[$i]} $BASE
-		fi
+	if [[ ${LOCATION[$i]} = Local ]]; then
+		CONTAINER=("${CONTAINER[@]}" "-v ${DIR[$i]}")
 	else
-		if [[ -z $test ]]; then
-			echo -e "Container ${NODE[$i]} does not exist. Create it?"
-			select opt in "Yes" "No"; do
-				if [[ $opt = "No" ]]; then
-					exit
-				else
-					sudo docker run -v ${DIR[$i]} -name ${NODE[$i]} $BASE
-					break;
-				fi
-			done
+		CONTAINER=("${CONTAINER[@]}" "-volumes-from ${NODE[$i]}")
+
+		if [[ -n $test ]]; then
+			continue
+		elif [[ ${LOCATION[$i]} = Host ]]; then
+			if [[ -z $test ]]; then
+				sudo docker run -v ${DIR[$i]}:${DIR[$i]}:${ACCESS[$i]} -name ${NODE[$i]} $BASE
+			fi
+		else
+			if [[ -z $test ]]; then
+				echo $test
+				echo -e "${NODE[$i]} does not exist."
+				select opt in "create" "quit"; do
+					if [[ $opt = "quit" ]]; then
+						exit
+					else
+						sudo docker run -v ${DIR[$i]} -name ${NODE[$i]} $BASE
+						break;
+					fi
+				done
+			fi
 		fi
 	fi
 done
+MOUNT=$(echo ${CONTAINER[@]})
 
-echo ${CONTAINER[@]}
+read -p "Image name: " NAME
+
+sudo docker run $MOUNT -name $NAME $IMAGE true
+sudo docker commit $NAME $NAME
+sudo docker rm $NAME > /dev/null
