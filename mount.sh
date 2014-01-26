@@ -1,7 +1,5 @@
 #!/bin/bash
 # TODO:
-# Currently checks if $ID is already a container but ignores any /node files that 
-# have not yet been created
 
 # set $path
 path=/home/user/project/build
@@ -63,7 +61,7 @@ do
 				else
 					temp3="Container"
 				fi
-				echo -e "Container name: $ID already exists.\nUse: $ID:$temp1 $temp3$temp4"
+				echo -e "Container $ID exists.\nEntry: $ID:$temp1 $temp3$temp4"
 				select opt in "Yes" "No"; do
 					if [[ $opt = "Yes" ]]; then
 						ARRAY=("${ARRAY[@]}" "$ID:$temp1 $temp3$temp4")
@@ -86,8 +84,6 @@ do
 				done
 			done
 
-			read -p "Directory: " DIR
-			
 			LOCATION=""
 			echo "Set location of data"
 			while [[ -z $LOCATION ]]
@@ -97,6 +93,11 @@ do
 				done
 			done
 
+			if [[ $LOCATION = "Container" ]]; then
+				echo -e "Container $ID does not exist.\nA data container will be created if needed."
+                        fi
+                        read -p "Directory: " DIR
+			
 			PERMISSION=""
 			if [[  $LOCATION = "Host"  ]]; then
 				echo "Set volume permission"

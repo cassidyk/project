@@ -2,4 +2,5 @@ Project to help with using Docker.
 Consists of the following scripts:
 build.sh - Create a base /image from available scripts in /distro
 mount.sh - Configure /node file to setup an /image with volume information
-create.sh - Create containers based off /node file
+create.sh - Create containers based off /node file. Will assume any containers which 
+exist share the correct volumes

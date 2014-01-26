@@ -2,8 +2,8 @@ IMAGE SOURCE
 base-arch
 
 VOLUME
-Test1:/bin Container
-Test2:/home Container
+Test1:/tmp Container
+Test2:/test Container
 Test3:/var/temp Local
 Test4:/data Local
 Test5:/tmp Host RW

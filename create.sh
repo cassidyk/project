@@ -66,9 +66,11 @@ do
 	echo ${VOLUME[$i]}
 
 	CONTAINER=("${CONTAINER[@]}" "-volumes-from ${NODE[$i]}")
-	test=$(sudo docker ps -a | tr -s ' ' | cut -d ' ' -f9 | grep -o ^${NODE[$i]}$)
-		
-	if [[ ${LOCATION[$i]} = Local ]]; then
+	test=$(sudo docker ps -a | tr -s ' ' | tr -s ' ' | rev | cut -d ' ' -f2 | rev | grep -o ^$ID$)
+
+	if [[ -n $test ]]; then
+		continue
+	elif [[ ${LOCATION[$i]} = Local ]]; then
 		if [[ -z $test ]]; then
 			sudo docker run -v ${DIR[$i]} -name ${NODE[$i]} $BASE
 		fi
@@ -78,8 +80,15 @@ do
 		fi
 	else
 		if [[ -z $test ]]; then
-			echo "Error: No container by name " ${NODE[$i]}
-			exit
+			echo -e "Container ${NODE[$i]} does not exist. Create it?"
+			select opt in "Yes" "No"; do
+				if [[ $opt = "No" ]]; then
+					exit
+				else
+					sudo docker run -v ${DIR[$i]} -name ${NODE[$i]} $BASE
+					break;
+				fi
+			done
 		fi
 	fi
 done
