@@ -94,4 +94,4 @@ MOUNT=$(echo ${CONTAINER[@]})
 
 read -p "Container name: " NAME
 
-sudo docker run $MOUNT -name $NAME $IMAGE /bin/bash
+sudo docker run $MOUNT -name $NAME $IMAGE true
