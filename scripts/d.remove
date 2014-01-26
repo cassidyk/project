@@ -1,0 +1,15 @@
+#!/bin/bash
+if [ -z $1 ]; then
+	read -p "Image to remove: " NAME
+else
+	NAME=$1
+fi
+
+IMAGE=$(sudo docker images | grep $NAME | tr -s ' ' | cut -d' ' -f1)
+CONTAINER=$(sudo docker ps -a | grep $NAME | tr -s ' ' | cut -d' ' -f1)
+
+if [ "$IMAGE" == "$NAME" ]; then
+	sudo docker rmi $IMAGE
+elif [ "$CONTAINER" == "$NAME" ]; then
+	sudo docker rm $CONTAINER
+fi
