@@ -2,4 +2,4 @@ IMAGE SOURCE
 base-arch
 
 VOLUME
-Database:/data Container RW
+Database:/data Container

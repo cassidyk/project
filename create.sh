@@ -50,10 +50,14 @@ LOCATION=()
 ACCESS=()
 for (( i=0; i < ${#VOLUME[@]}; i++ ))
 do
-	NODE=("${NODE[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / |cut -d " " -f1)")
-	DIR=("${DIR[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / |cut -d " " -f2)")
-	LOCATION=("${LOCATION[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / |cut -d " " -f3)")
-	ACCESS=("${ACCESS[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / |cut -d " " -f4)")	
+	NODE=("${NODE[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / | cut -d " " -f1)")
+	DIR=("${DIR[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / | cut -d " " -f2)")
+	LOCATION=("${LOCATION[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / | cut -d " " -f3)")
+	if [[ ${LOCATION[$i]} = "Host" ]]; then
+		ACCESS=("${ACCESS[@]}" "$(echo ${VOLUME[$i]} | sed s/:/\ / | cut -d " " -f4)")	
+	else
+		ACCESS=("${ACCESS[@]}" nil)
+	fi
 done
 
 CONTAINER=()
