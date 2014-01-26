@@ -40,59 +40,6 @@ do
 			break 2;
 
 	       	elif [[ $node = "add" ]]; then
-			read -p "ID: " ID
-			test=$(sudo docker ps -a | tr -s ' ' | tr -s ' ' | rev | cut -d ' ' -f2 | rev | grep -o ^$ID$)
-			while [[ -n $test ]]
-			do
-				temp1=$(sudo docker inspect $ID | grep -A 1 Volumes.: | sed -n '5 p' | tr -d ' ' | cut -d ':' -f1)
-				temp2=$(sudo docker inspect $ID | grep -A 1 Volumes.: | sed -n '5 p' | tr -d ' ' | cut -d ':' -f2)
-
-				temp1=$(echo $temp1 | sed 's/"//g')
-				temp2=$(echo $temp2 | sed 's/"//g')
-				
-				if [[ $temp1 = $temp2 ]]; then
-					temp3="Host"
-					temp4=$(sudo docker inspect $ID | grep $temp1 | sed -n '3 p' | tr -d ' ' | cut -d ':' -f2)
-					if [[ $temp4 = true ]]; then
-						temp4=" RW"
-					else
-						temp4=" RO"
-					fi
-				else
-					temp3="Container"
-				fi
-				echo -e "Container $ID exists.\nSuggested entry: $ID:$temp1 $temp3$temp4"
-				select opt in "add" "local" "rename"; do
-					if [[ $opt = "add" ]]; then
-						ARRAY=("${ARRAY[@]}" "$ID:$temp1 $temp3$temp4")
-						echo "$(printf '%s\n' "${ARRAY[@]}")"
-
-						unset temp1
-						unset temp2
-						unset temp3
-						unset temp4
-						continue 4
-					elif [[ $opt = "local" ]]; then
-						ARRAY=("${ARRAY[@]}" "$ID:$temp1 Local")
-						echo "$(printf '%s\n' "${ARRAY[@]}")"
-
-						unset temp1
-						unset temp2
-						unset temp3
-						unset temp4
-						continue 4
-					else
-						unset temp1
-						unset temp2
-						unset temp3
-						unset temp4
-
-						read -p "Enter new ID: " ID
-						break
-					fi
-				done
-			done
-
 			LOCATION=""
 			echo "Set location of data"
 			while [[ -z $LOCATION ]]
@@ -113,8 +60,47 @@ do
 			done
 
 			if [[ $LOCATION = "Container" ]]; then
-				echo -e "Container $ID does not exist.\nA data container will be created if needed."
-                        fi
+				read -p "ID: " ID
+				test=$(sudo docker ps -a | tr -s ' ' | tr -s ' ' | rev | cut -d ' ' -f2 | rev | grep -o ^$ID$)
+				while [[ -n $test ]]
+				do
+					temp1=$(sudo docker inspect $ID | grep -A 1 Volumes.: | sed -n '5 p' | tr -d ' ' | cut -d ':' -f1)
+					temp1=$(echo $temp1 | sed 's/"//g')
+					temp2="Container"
+
+					echo -e "Container $ID exists.\nSuggested entry: $ID:$temp1 $temp3$temp4"
+					select opt in "add" "local" "rename"; do
+						if [[ $opt = "add" ]]; then
+							ARRAY=("${ARRAY[@]}" "$ID:$temp1 $temp2")
+							echo "$(printf '%s\n' "${ARRAY[@]}")"
+
+							unset temp1
+							unset temp2
+							continue 4
+						elif [[ $opt = "local" ]]; then
+							ARRAY=("${ARRAY[@]}" "$IMAGE:$temp1 Local")
+							echo "$(printf '%s\n' "${ARRAY[@]}")"
+
+							unset temp1
+							unset temp2
+							continue 4
+						else
+							unset temp1
+							unset temp2
+
+							read -p "Enter new ID: " ID
+							break
+						fi
+					done
+				done
+
+				if [[ $LOCATION = "Container" ]]; then
+					echo -e "Container $ID does not exist.\nA data container will be created if needed."
+	                        fi
+			else
+				ID=$IMAGE
+			fi
+
                         read -p "Directory: " DIR
 			
 			PERMISSION=""
@@ -122,11 +108,12 @@ do
 				echo "Set volume permission"
 				while [[ -z $PERMISSION ]]
 				do
-					select PERMISSION in "RW" "RO"; do
+					select PERMISSION in "rw" "ro"; do
 						PERMISSION=" $PERMISSION"
 						break;
 					done
 				done
+				ID=`hostname`
 			fi
 
 			ARRAY=("${ARRAY[@]}" "$ID:$DIR $LOCATION$PERMISSION")

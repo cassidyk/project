@@ -2,9 +2,9 @@ IMAGE SOURCE
 base-arch
 
 VOLUME
-Test1:/tmp Container
+Test1:/tmp/test Container
 Test2:/test Container
-Test3:/var/temp Local
-Test4:/data Local
-Test5:/tmp Host RW
-Test6:/home/user/share Host RO
+base-arch:/var/temp Local
+base-arch:/data Local
+zenbook:/tmp Host rw
+zenbook:/home/user Host ro

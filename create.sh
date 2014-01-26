@@ -15,8 +15,8 @@ BASE="base-arch true"
 
 
 # create $MENU from entries in $INPUT
-NODE=$(ls -1 $INPUT)
-MENU=($NODE quit)
+MENU=$(ls -1 $INPUT)
+MENU=($MENU quit)
 
 echo "Select config"
 select config in `echo ${MENU[@]}`; do
@@ -67,15 +67,13 @@ do
 
 	if [[ ${LOCATION[$i]} = Local ]]; then
 		CONTAINER=("${CONTAINER[@]}" "-v ${DIR[$i]}")
+	elif [[ ${LOCATION[$i]} = Host ]]; then
+		CONTAINER=("${CONTAINER[@]}" "-v ${DIR[$i]}:/host${DIR[$i]}:${ACCESS[$i]}")
 	else
 		CONTAINER=("${CONTAINER[@]}" "-volumes-from ${NODE[$i]}")
 
 		if [[ -n $test ]]; then
 			continue
-		elif [[ ${LOCATION[$i]} = Host ]]; then
-			if [[ -z $test ]]; then
-				sudo docker run -v ${DIR[$i]}:${DIR[$i]}:${ACCESS[$i]} -name ${NODE[$i]} $BASE
-			fi
 		else
 			if [[ -z $test ]]; then
 				echo $test
@@ -93,9 +91,7 @@ do
 	fi
 done
 MOUNT=$(echo ${CONTAINER[@]})
-
+echo $MOUNT
 read -p "Image name: " NAME
 
-sudo docker run $MOUNT -name $NAME $IMAGE true
-sudo docker commit $NAME $NAME
-sudo docker rm $NAME > /dev/null
+sudo docker run $MOUNT -name $NAME $IMAGE /bin/bash
