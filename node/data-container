@@ -2,4 +2,4 @@ IMAGE SOURCE
 base-arch
 
 VOLUME
-Data:/data Local
+base-arch:/data Local
